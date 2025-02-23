@@ -1,0 +1,45 @@
+{% extends "hometemplate.html" %}
+
+{% block title %}Admin Home{% endblock %}
+{% block content %}
+<div class="container mt-4"> <!-- Added 'mt-4' for margin on top -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4 p-3"> <!-- 'mb-4' for spacing between rows, 'p-3' for padding -->
+                <div class="card-body">
+                    <h5 class="card-title">Subject</h5>
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Chapter</th>
+                                <th>No. of Questions</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sub1</td>
+                                <td>No of Questions</td>
+                                <td><a href="#">Edit</a> / <a href="#">Delete</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a class="btn btn-success" href="#" >Add Chapter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <a href="#" >View All</a>
+        </div>
+        <div class="col-auto">
+            <a href="#" >Add Subjects</a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

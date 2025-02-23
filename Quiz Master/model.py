@@ -1,7 +1,7 @@
 
-from app import db
+from app import db,app
 
-class User(db.model):
+class User(db.Model):
     __tablename__= 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -62,3 +62,5 @@ class Score(db.Model):
 
     quiz = db.relationship('Quiz', backref=db.backref('scores'))
     user = db.relationship('User', backref=db.backref('scores'))
+
+
