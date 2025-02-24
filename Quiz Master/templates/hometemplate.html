@@ -34,10 +34,14 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
+                <form class="d-flex mx-auto" style="width: 50%;" action="/{{ usertype }}/search" method="GET">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/{{usertype}}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/{{usertype}}/search">Search</a></li>
                     {% if usertype == 'admin' %}
                         <li class="nav-item"><a class="nav-link" href="/{{usertype}}/quiz">Quiz</a></li>
                     {% else %}

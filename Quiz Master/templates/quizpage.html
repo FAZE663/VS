@@ -7,7 +7,7 @@
         <div class="col-md-6">
             <div class="card shadow-sm mb-4 p-3"> <!-- 'mb-4' for spacing between rows, 'p-3' for padding -->
                 <div class="card-body">
-                    <h5 class="card-title" href="#">Subject</h5>
+                    <h5 class="card-title" href="#">Quiz name</h5>
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -24,7 +24,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <a class="btn btn-success" href="#" >Add Questions</a>
+                    <a class="btn btn-success" href="#"  data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add Questions</a>
                 </div>
             </div>
         </div>
@@ -36,10 +36,129 @@
             <a href="#" >View All</a>
         </div>
         <div class="col-auto">
-            <a href="#" >Add Quiz</a>
+            <a  href="#" data-bs-toggle="modal" data-bs-target="#addQuizModal">Add Quiz</a>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addQuestionModalLabel">Add New Question</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/admin/add-question">
+                    <div class="row g-3">
+                        <!-- Chapter ID -->
+                        <div class="col-md-6">
+                            <label for="chapterId" class="form-label">Chapter</label>
+                            <select class="form-select" id="chapterId" name="chapterId" required>
+                                <option value="" disabled selected>Select a Chapter</option>
+                                <option value="1">Chapter 1: Introduction</option>
+                                <option value="2">Chapter 2: Basics</option>
+                                <option value="3">Chapter 3: Advanced Topics</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Correct Answer -->
+                        <div class="col-md-6">
+                            <label for="correctAns" class="form-label">Correct Answer</label>
+                            <select class="form-select" name="correctAns" id="correctAns" required>
+                                <option value="" disabled selected>Select an Option</option>
+                                <option value="1">A</option>
+                                <option value="2">B</option>
+                                <option value="3">C</option>
+                                <option value="4">D</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Question Title & Description -->
+                    <div class="mb-3">
+                        <label for="questionTitle" class="form-label">Question Title</label>
+                        <input type="text" class="form-control" id="questionTitle" name="questionTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="questionDesc" class="form-label">Description</label>
+                        <textarea class="form-control" rows="2" name="questionDesc" id="questionDesc" placeholder="Enter the question" required></textarea>
+                    </div>
+
+                    <!-- Options in 2 columns -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="opt1" class="form-label">Option 1 (A)</label>
+                            <input type="text" class="form-control" id="opt1" name="opt1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="opt2" class="form-label">Option 2 (B)</label>
+                            <input type="text" class="form-control" id="opt2" name="opt2" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="opt3" class="form-label">Option 3 (C)</label>
+                            <input type="text" class="form-control" id="opt3" name="opt3" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="opt4" class="form-label">Option 4 (D)</label>
+                            <input type="text" class="form-control" id="opt4" name="opt4" required>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary">Add Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addQuizModal" tabindex="-1" aria-labelledby="addQuizModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addQuizModalLabel">Add New Quiz</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/admin/add-quiz">
+                    <div class="row g-3">
+                        <!-- Quiz Name -->
+                        <div class="col-md-6">
+                            <label for="quizName" class="form-label">Quiz Name</label>
+                            <input type="text" class="form-control" id="quizName" name="quizName" required>
+                        </div>
+
+                        <!-- Chapter ID -->
+                        <div class="col-md-6">
+                            <label for="quizChapterId" class="form-label">Chapter</label>
+                            <select class="form-select" id="quizChapterId" name="quizChapterId" required>
+                                <option value="" disabled selected>Select a Chapter</option>
+                                <option value="1">Chapter 1: Introduction</option>
+                                <option value="2">Chapter 2: Basics</option>
+                                <option value="3">Chapter 3: Advanced Topics</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Description -->
+                    <div class="mb-3">
+                        <label for="quizDesc" class="form-label">Quiz Description</label>
+                        <textarea class="form-control" rows="3" name="quizDesc" id="quizDesc" placeholder="Enter quiz description" required></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary">Add Quiz</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 {% endblock %}

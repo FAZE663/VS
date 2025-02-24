@@ -11,9 +11,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)      
 
-from model import *
+import model
 
-@app.route("/admin",methods=['GET','POST'])
+
+
+@app.route('/admin',methods=['GET','POST'])
 def adminhome():
     return render_template("adminhome.html",usertype="admin",username="admin")
 
@@ -40,6 +42,16 @@ def summarypage(usertype):
 @app.route("/admin/quiz",methods=["GET","POST"])
 def quizpage():
     return render_template("quizpage.html",usertype='admin',username='admin')
+
+
+@app.route("/",methods=['GET','POST'])
+def login():
+    return render_template("login.html")
+
+
+@app.route('/signup',methods=['GET','POST'])
+def signup():
+    return render_template("signup.html")
 
 
 with app.app_context():
