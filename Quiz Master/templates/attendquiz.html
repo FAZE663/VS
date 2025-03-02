@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+    <style>
+        body {
+            padding-top: 60px; /* To prevent content from overlapping with fixed timer */
+        }
+        .fixed-timer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #e5e0e1;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="fixed-timer">
+        <h5 class="text-dark">Time Left: <span id="timer" class="text-danger">{{quizdet.time_duration}}</span></h5>
+    </div>
+    <div class="container mt-5">
+
+        <h2 class="text-center">Quiz</h2>
+        <h3 class="text-center">{{quizdet.name}}</h3>
+
+
+
+        
+        <form id="quizForm" action="/submitquiz/{{quizdet.id}}" method="POST">
+            {% for i in data %}
+            <div class="mt-4">
+                <h4>{{loop.index}}. {{i.question_statement}}</h4>
+                <div>
+                    <input type="radio" name="q{{i.id}}" value="1" > {{i.option1}}<br>
+                    <input type="radio" name="q{{i.id}}" value="2"> {{i.option2}}<br>
+                    <input type="radio" name="q{{i.id}}" value="3"> {{i.option3}}<br>
+                    <input type="radio" name="q{{i.id}}" value="4"> {{i.option4}}<br>
+                </div>
+            </div>
+
+            {% endfor %}
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Timer countdown
+        let timer = {{quizdet.time_duration}}; 
+        const timerDisplay = document.getElementById('timer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+            if (timer <= 0) {
+                clearInterval(countdown);
+                alert("Time's up! Submitting quiz...");
+                document.getElementById('quizForm').submit();
+            } else {
+                timer--;
+            }
+        }
+
+        const countdown = setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>

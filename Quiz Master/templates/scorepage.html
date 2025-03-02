@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mt-4"> <!-- Added 'mt-4' for margin on top -->
     <div class="row justify-content-center">
-        <div class="col-md-8 ">
+        <div class="col-md-12 ">
             <div class="card shadow-sm mb-4 p-3"> <!-- 'mb-4' for spacing between rows, 'p-3' for padding -->
                 <div class="card-body">
                     <h5 class="card-title text-center">Scores</h5>
@@ -14,21 +14,25 @@
                                 <th>Id</th>
                                 <th>Subject</th>
                                 <th>Chapter</th>
+                                <th>Quiz Name</th>
                                 <th>date</th>
                                 <th>No. of Questions</th>
                                 <th>Score</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for i in data %}
                             <tr>
-                                <td>Id</td>
-                                <td>Sub1</td>
-                                <td>date</td>
-                                <td>chapter1</td>
-                                <td>No of Questions</td>
-                                <td>120</td>
+                                <td>{{i.id}}</td>
+                                <td>{{i.subject}}</td>
+                                <td>{{i.chapter}}</td>
+                                <td>{{i.quizname}}</td>
+                                <td>{{i.date}}</td>
+                                <td>{{i.num}}</td>
+                                <td>{{i.score}}</td>
                                 
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                     

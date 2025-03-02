@@ -2,6 +2,17 @@
 
 {% block title %}User Home{% endblock %}
 {% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 <div class="container mt-4"> <!-- Added 'mt-4' for margin on top -->
     <div class="row">
         <div class="col-md-12">
@@ -21,15 +32,19 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for i in quiz %}
                             <tr>
-                                <td>Id</td>
-                                <td>Sub1</td>
-                                <td>date</td>
-                                <td>chapter1</td>
-                                <td>No of Questions</td>
-                                <td>120</td>
-                                <td><a href="#" class="btn btn-success">Start</a></td>
+                                <td>{{i.quiz_id}}</td>
+                                <td>{{i.subject_name}}</td>
+                                <td>{{i.chapter_name}}</td>
+                                <td>{{i.date_of_quiz}}</td>
+                                <td>{{i.num_questions}}</td>
+                                <td>{{i.time_duration}}</td>
+                                <td><a class="btn btn-success" target="_blank" href="/user/instructions/{{i.quiz_id}}">
+                                    Attend Quiz
+                                </a></td>
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                     

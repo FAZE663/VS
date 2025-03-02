@@ -2,17 +2,81 @@
 {% block title %}Summary{% endblock %}
 {% block content %}
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Generated Images</h2>
+    <h2 class="text-center mb-4">Summary</h2>
     <div class="row justify-content-center">
         <div class="col-md-6 d-flex justify-content-center">
-            <img src="https://picsum.photos/400/300?random=1" class="img-fluid" alt="Random Image 1">
+            <div class="col-auto">
+                <h3 class="justify-content-center">Quizzes Per Subject</h3>
+                <canvas id="subjectChart"style="width: 400px; height: 400px;"></canvas>
+            </div>
+
         </div>
         <div class="col-md-6 d-flex justify-content-center">
-            <img src="https://picsum.photos/400/300?random=2" class="img-fluid" alt="Random Image 2">
+            <div class="col-auto">
+                <h3 class="justify-content-center">Quizzes Attempted</h3>
+                <canvas id="monthChart" style="max-height: 500px; max-width: 500 px" ></canvas>
+            </div>
         </div>
     </div>
+
+
+
 </div>
+<script>
+const subjectCtx = document.getElementById('subjectChart').getContext('2d');
+            new Chart(subjectCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ img1_labels | tojson | safe }},
+                    datasets: [{
+                        label: {% if usertype == "user"%}'No of Quizzes',{% else %} 'Top Score',{% endif %}
+                        data: {{ img1_counts | tojson | safe}},
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+const monthCtx = document.getElementById('monthChart').getContext('2d');
+new Chart(monthCtx, {
+    type: 'pie', 
+    data: {
+        labels: {{ img2_labels | tojson | safe}}, 
+        datasets: [{
+            label: {% if usertype == "user"%}'Quizzes Attended',{% else %} 'User attempts',{% endif %}
+            data: {{ img2_counts | tojson | safe}}, 
+            
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                enabled: true
+            }
+            
+        }
+    }
+});
+</script>
+
+
+
 
 
 {% endblock %}

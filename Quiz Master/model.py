@@ -1,5 +1,6 @@
 
-from app import db,app
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__= 'users'
@@ -26,14 +27,16 @@ class Chapter(db.Model):
     description = db.Column(db.Text)
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
     subject = db.relationship('Subject', backref=db.backref('chapters', lazy=True))
+    questions = db.relationship('Question', backref='chapter', lazy=True)
 
 class Quiz(db.Model):
     __tablename__ = 'quizzes'
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.id'), nullable=False)
+    name=db.Column(db.String(20),nullable=False)
     date_of_quiz = db.Column(db.DateTime, nullable=False)
     time_duration = db.Column(db.String(10))  
-    remarks = db.Column(db.Text)
+    description = db.Column(db.Text)
 
     chapter = db.relationship('Chapter', backref=db.backref('quizzes', lazy=True))
 
@@ -42,6 +45,7 @@ class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False)
+    chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.id'), nullable=False)
     question_statement = db.Column(db.Text, nullable=False)
     option1 = db.Column(db.String(200), nullable=False)
     option2 = db.Column(db.String(200), nullable=False)

@@ -4,10 +4,11 @@
 {% block content %}
 <div class="container mt-4"> <!-- Added 'mt-4' for margin on top -->
     <div class="row">
+        {% for sub in subdet %}
         <div class="col-md-6">
             <div class="card shadow-sm mb-4 p-3"> <!-- 'mb-4' for spacing between rows, 'p-3' for padding -->
                 <div class="card-body">
-                    <h5 class="card-title">Subject</h5>
+                    <h5 class="card-title">{{sub.name}}</h5>
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -17,17 +18,20 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for chap in sub.chapters %}
                             <tr>
-                                <td>Sub1</td>
-                                <td>No of Questions</td>
+                                <td>{{chap.title}}</td>
+                                <td>{{chap.question_count}}</td>
                                 <td><a href="#">Edit</a> / <a href="#">Delete</a></td>
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addChapterModal" >Add Chapter</button>
+                    <button class="btn btn-success add-chapter-button" data-bs-toggle="modal" data-bs-target="#addChapterModal" data-subjectid="{{sub.id}}" >Add Chapter</button>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 </div>
 <div class="container mt-4">
@@ -53,7 +57,7 @@
             </div>
             <div class="modal-body">
                 <!-- Add Chapter Form -->
-                <form method="POST" action="/admin/add-chapter">
+                <form method="POST">
                     <div class="mb-3">
                         <label for="chapterName" class="form-label">Chapter Name</label>
                         <input type="text" class="form-control" id="chapterName" name="chapter_name" required>
@@ -63,7 +67,7 @@
                         <input type="text" class="form-control" id="chdesc" name="chdesc" required>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Add Chapter</button>
+                        <button type="submit" class="btn btn-primary" id="submitchapter">Add Chapter</button>
                     </div>
                 </form>
             </div>
@@ -80,7 +84,9 @@
             </div>
             <div class="modal-body">
                 <!-- Add Subject Form -->
-                <form method="POST" action="/admin/add-subject">
+                <form method="POST">
+
+                    <input type="hidden" id="subjectid" name="subjectid">
                     <div class="mb-3">
                         <label for="subjectName" class="form-label">Subject Name</label>
                         <input type="text" class="form-control" id="subjectName" name="subject_name" required>
@@ -98,5 +104,48 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded',function() {
+    const addchapterbutton = document.querySelectorAll('.add-chapter-button');
+    const subjectid=document.getElementById('subjectid');
+
+    addchapterbutton.forEach((btn)=>{
+        btn.addEventListener("click",()=>{
+            const subjectid=btn.getAttribute("data-subjectid")
+            subjectid.value = subjectid
+        });
+    });
+    
+
+    const newchapbutton=document.getElementById("submitchapter");
+    newchapbutton.addEventListener('click',()=>{
+        const chapter_name=document.getElementById("chapterName").value;
+        const chdesc=document.getElementById("chdesc").value;
+        const subid=subjectid.value;
+
+        fetch("api/addchapter", {
+            method:'POST',
+            headers:{
+                "Content-Type":"application/json",
+
+            },
+            body: JSON.stringify({
+                subid:subid,
+                chapter_name:chapter_name,
+                chdesc:chdesc
+            })
+        })
+        .then((response)=>response.json())
+        .then((data)=>{
+            alert(data.message);
+            location.reload();
+        })
+        .catch((error)=>{
+            console.error('Error: ',error);
+        });
+
+    });
+});
+</script>
 
 {% endblock %}
