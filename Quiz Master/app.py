@@ -267,14 +267,29 @@ def submit(id):
             flash("An error occurred while submitting the quiz. Please try again.", "danger")
             return redirect(url_for('userhome'))
     
+@app.route("/<usertype>/search",methods=['GET'])
+def search(usertype):
+    Query=request.args.get('query')
+    results=[]
 
+    if Query:
+        subjects=Subject.query.filter(Subject.name.ilike(f'%{Query}%')).all()
+        results.extend([{'type': 'Subject', 'name': i.name} for i in subjects])
+
+        quizzes=Quiz.query.filter(Quiz.name.ilike(f'%{Query}%')).all()
+        results.extend([{'type': 'Quiz', 'name': i.name} for i in quizzes])
+
+        chapters=Chapter.query.filter(Chapter.name.ilike(f'%{Query}%')).all()
+        results.extend([{'type': 'Chapter', 'name': i.name} for i in chapters])
+    print(results)
+    return render_template('searchpage.html',usertype=usertype,username=session.get('username'),result=results,query=Query)
 
 
 with app.app_context():
     db.create_all()
     db.session.commit()
 
-api.add_resource(chapterResources, '/api/addcahpter')
+api.add_resource(chapterResources, '/api/addchapter')
 
 if __name__=="__main__":
     app.debug=True

@@ -8,7 +8,7 @@
         <div class="col-md-6">
             <div class="card shadow-sm mb-4 p-3"> <!-- 'mb-4' for spacing between rows, 'p-3' for padding -->
                 <div class="card-body">
-                    <h5 class="card-title">{{sub.name}}</h5>
+                    <h5 class="card-title">{{sub.id}}. {{sub.name}}</h5>
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -105,45 +105,50 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded',function() {
+document.addEventListener('DOMContentLoaded', function() {
     const addchapterbutton = document.querySelectorAll('.add-chapter-button');
-    const subjectid=document.getElementById('subjectid');
+    const subjectid = document.getElementById('subjectid');
+    const addChapterForm = document.getElementById('addChapterForm'); // Get the form
 
-    addchapterbutton.forEach((btn)=>{
-        btn.addEventListener("click",()=>{
-            const subjectid=btn.getAttribute("data-subjectid")
-            subjectid.value = subjectid
+    addchapterbutton.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const subid = btn.getAttribute("data-subjectid");
+            subjectid.value = subid; // Set the subject ID in the hidden field
         });
     });
-    
 
-    const newchapbutton=document.getElementById("submitchapter");
-    newchapbutton.addEventListener('click',()=>{
-        const chapter_name=document.getElementById("chapterName").value;
-        const chdesc=document.getElementById("chdesc").value;
-        const subid=subjectid.value;
+    const newchapbutton = document.getElementById("submitchapter");
+    newchapbutton.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent form submission
 
-        fetch("api/addchapter", {
-            method:'POST',
-            headers:{
-                "Content-Type":"application/json",
+        const chapter_name = document.getElementById("chapterName").value;
+        const chdesc = document.getElementById("chdesc").value;
+        const subid = subjectid.value;
 
+        if (!subid) {
+            alert("Subject ID is missing. Please try again!");
+            return;
+        }
+
+        fetch("/api/addchapter", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                subid:subid,
-                chapter_name:chapter_name,
-                chdesc:chdesc
+                subid: subid,
+                chapter_name: chapter_name,
+                chdesc: chdesc
             })
         })
-        .then((response)=>response.json())
-        .then((data)=>{
+        .then((response) => response.json())
+        .then((data) => {
             alert(data.message);
             location.reload();
         })
-        .catch((error)=>{
-            console.error('Error: ',error);
+        .catch((error) => {
+            console.error('Error: ', error);
         });
-
     });
 });
 </script>

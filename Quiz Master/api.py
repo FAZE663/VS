@@ -8,7 +8,7 @@ class chapterResources(Resource):
         try:
             data=request.get_json()
 
-            subid=data["subjectid"]
+            subid=data["subid"]
             chaptername=data["chapter_name"]
             chdesc=data['chdesc']
 
@@ -16,7 +16,9 @@ class chapterResources(Resource):
             print("succesfully added it")
             db.session.add(newchap)
             db.session.commit()
+            return jsonify({"message":"Chapter added succesfully","status":"success"})
 
         except Exception as e:
             db.session.rollback()
             print(str(e))
+            return jsonify({"message":"Chapter not added succesfully","status":"error"})
