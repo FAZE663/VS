@@ -19,7 +19,7 @@ api=Api(app)
 
 
 
-@app.route('/admin',methods=['GET','POST'])
+@app.route('/admin',methods=['GET','POST','PUT'])
 def adminhome():
     subjects = Subject.query.all()
 
@@ -289,7 +289,7 @@ with app.app_context():
     db.create_all()
     db.session.commit()
 
-api.add_resource(chapterResources, '/api/addchapter')
+api.add_resource(chapterResources, '/api/chapter','/api/chapter/<int:id>')
 
 if __name__=="__main__":
     app.debug=True
