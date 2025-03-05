@@ -4,12 +4,11 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row">
-        {% for i in data %}
-        <div class="col-md-6"> 
-            
-            <div class="card shadow-sm mb-4 p-3"> 
+        {% for quiz in data %}
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4 p-3">
                 <div class="card-body">
-                    <h5 class="card-title">{{ i.name }}</h5>
+                    <h5 class="card-title">{{ quiz.name }}</h5>
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -19,10 +18,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for j in i.questions %} <!-- Loop through questions -->
+                            {% for question in quiz.questions %}
                             <tr>
                                 <td>{{ loop.index }}</td> <!-- Auto-increment question number -->
-                                <td>{{ j.question_statement }}</td>
+                                <td>{{ question.question }}</td>
                                 <td>
                                     <a href="#">Edit</a> / <a href="#">Delete</a>
                                 </td>
@@ -30,12 +29,15 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <a class="btn btn-success" href="#" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+                    <a class="btn btn-success addquestion" 
+                       href="#" 
+                       data-bs-toggle="modal" 
+                       data-quizid="{{ quiz.qid }}" 
+                       data-bs-target="#addQuestionModal">
                         Add Questions
                     </a>
                 </div>
             </div>
-            
         </div>
         {% endfor %}
     </div>
@@ -62,18 +64,15 @@
                 <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="/admin/add-question">
+                <form method="POST">
                     <div class="row g-3">
-                        <!-- Chapter ID -->
                         <div class="col-md-6">
-                            <label for="chapterId" class="form-label">Chapter</label>
-                            <select class="form-select" id="chapterId" name="chapterId" required>
-                                <option value="" disabled selected>Select a Chapter</option>
-                                <option value="1">Chapter 1: Introduction</option>
-                                <option value="2">Chapter 2: Basics</option>
-                                <option value="3">Chapter 3: Advanced Topics</option>
-                            </select>
+                            <label for="chapter" class="form-label">Chapter</label>
+                            <input type="text" class="form-control" id="chaptername" name="chaptername"   disabled required>
                         </div>
+
+                        <input type="hidden" id="chapterid" name="chapterid">
+                        <input type="hidden" id="quizid" name="quizid">
                         
                         <!-- Correct Answer -->
                         <div class="col-md-6">
@@ -120,7 +119,7 @@
 
                     <!-- Submit Button -->
                     <div class="text-center mt-3">
-                        <button type="submit" class="btn btn-primary">Add Question</button>
+                        <button type="submit" class="btn btn-primary" id="submitquestion">Add Question</button>
                     </div>
                 </form>
             </div>
@@ -179,6 +178,70 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded',function(){
+
+        const addquestionbutton=document.querySelectorAll(".addquestion");
+        addquestionbutton.forEach((btn)=>{
+            btn.addEventListener("click",()=>{
+                const quizid=btn.getAttribute("data-quizid");
+                fetch(`/api/quiz/${quizid}`,{method:'GET'})
+                .then((response)=>response.json())
+                .then((data)=>{
+                    document.getElementById('chaptername').value=data.chaptername;
+                    document.getElementById('chapterid').value=data.chapterid;
+                    document.getElementById('quizid').value=data.quizid;
+                })
+                .catch((error)=>{
+                    console.error(error);
+                });
+            });
+        });
+
+
+        const submitqs=document.getElementById("submitquestion");
+        submitqs.addEventListener('click',()=>{
+            const opt1=document.getElementById("opt1").value;
+            const opt2=document.getElementById("opt2").value;
+            const opt3=document.getElementById("opt3").value;
+            const opt4=document.getElementById("opt4").value;
+            const correctopt=document.getElementById("correctAns").value;
+            const qstitle=document.getElementById("questionTitle").value;
+            const qstn=document.getElementById("questionDesc").value;
+            const chid=document.getElementById("chapterid").value;
+            const qid=document.getElementById('quizid').value;
+
+            fetch("/api/question",{
+                method:'POST',
+                headers:{
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    'qstitle':qstitle,
+                    'qstn':qstn,
+                    'opt1':opt1,
+                    'opt2':opt2,
+                    'opt3':opt3,
+                    'opt4':opt4,
+                    'correctopt':correctopt,
+                    'chid':chid,
+                    'qid':qid,
+                })
+            })
+            .then((response)=>response.json())
+            .then((data)=>{
+                alert(data.message);
+                location.reload();
+            })
+            .catch((error)=>{
+                console.error(error);
+            });
+
+        });
+    });
+</script>
 
 
 

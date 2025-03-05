@@ -158,20 +158,38 @@ def summarypage(usertype):
 
 @app.route("/admin/quiz",methods=["GET","POST"])
 def quizpage():
-    data=(
+    data = (
         Quiz.query
         .outerjoin(Question)
         .with_entities(
+            Quiz.id.label("qid"),
+            Quiz.name.label("name"),
             Question.id.label("id"),
-            Question.question_statement.label("question"),
-            Quiz.name.label("name")
+            Question.question_statement.label("question")
         )
-        .group_by(Quiz.name)
+        .order_by(Quiz.id)
         .all()
     )
 
+    # Restructure data to group questions under each quiz
+    quizzes = {}
+    for row in data:
+        qid = row.qid
+        if qid not in quizzes:
+            quizzes[qid] = {
+                "name": row.name,
+                "qid": row.qid,
+                "questions": []
+            }
+        
+        if row.id:  # Add questions only if they exist
+            quizzes[qid]["questions"].append({
+                "id": row.id,
+                "question": row.question
+            })
 
-    return render_template("quizpage.html",usertype='admin',username='admin',data=data)
+
+    return render_template("quizpage.html",usertype='admin',username='admin',data=quizzes.values())
 
 
 @app.route("/",methods=['GET','POST'])
@@ -281,6 +299,9 @@ def search(usertype):
 
         chapters=Chapter.query.filter(Chapter.name.ilike(f'%{Query}%')).all()
         results.extend([{'type': 'Chapter', 'name': i.name} for i in chapters])
+
+        users=User.query.filter(User.username.ilike(f'%{Query}%')).all()
+        results.extend([{'type': 'User', 'name': i.username} for i in users])
     print(results)
     return render_template('searchpage.html',usertype=usertype,username=session.get('username'),result=results,query=Query)
 
@@ -290,6 +311,8 @@ with app.app_context():
     db.session.commit()
 
 api.add_resource(chapterResources, '/api/chapter','/api/chapter/<int:id>')
+api.add_resource(quizResources, '/api/quiz/<int:id>')
+api.add_resource(questionResources, '/api/question')
 
 if __name__=="__main__":
     app.debug=True
