@@ -101,9 +101,11 @@ class quizResources(Resource):
 
             chid=data['chid']
             name=data["name"]
-            duration=data['duration']
+            time=datetime.strptime(data['duration'],'%H:%M')
             date=datetime.strptime(data["date"],"%Y-%m-%d")
             desc=data["desc"]
+
+            duration=time.hour*60+time.minute
 
             newquiz=Quiz(chapter_id=chid,name=name,date_of_quiz=date,time_duration=duration,description=desc)
 
@@ -114,9 +116,19 @@ class quizResources(Resource):
             mesg=str(e)
             print('error'," ",mesg)
             return jsonify({
-                    'message':'Some Error Occured:{mesg}',
+                    'message':str('Some Error Occured: ',mesg),
                     'status':"error"
             })
+    def delete(self,id):
+        try:
+            qstn=Quiz.query.get(id)
+            db.session.delete(qstn)
+            db.session.commit()
+            return jsonify({"message":"Question deleted","status":"success"})
+        except Exception as e:
+            print(f'error: {str(e)}')
+            db.session.rollback()
+            return jsonify({'message':'Some error occured','status':"error"}) 
 
 
 class questionResources(Resource):

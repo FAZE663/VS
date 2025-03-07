@@ -5,6 +5,7 @@ from flask import render_template,redirect,flash,url_for,session
 import os
 from model import *
 from api import *
+from sqlalchemy import desc
 
 
 app=Flask(__name__)
@@ -46,7 +47,8 @@ def adminhome():
 
 @app.route("/user",methods=["POST",'GET'])
 def userhome():
-    quizzes=Quiz.query.join(Chapter).join(Subject)
+    quizzes=Quiz.query.join(Chapter).join(Subject).order_by(desc(Quiz.date_of_quiz)).all()
+    today=datetime.today().strftime('%d-%m-%Y')
     quiz_details = []
     for quiz in quizzes:
         qstns=Question.query.filter_by(quiz_id=quiz.id).count()
@@ -55,13 +57,13 @@ def userhome():
             'quiz_id': quiz.id,
             'subject_name': quiz.chapter.subject.name,
             'chapter_name': quiz.chapter.name,
-            'date_of_quiz': quiz.date_of_quiz.strftime('%d-%m-%Y %H:%M'),
+            'date_of_quiz': quiz.date_of_quiz.strftime('%d-%m-%Y'),
             'num_questions': qstns,  
             'time_duration': quiz.time_duration
         })
         
 
-    return render_template("userhome.html", usertype='user',username=session.get('username'),quiz=quiz_details)
+    return render_template("userhome.html", usertype='user',username=session.get('username'),quiz=quiz_details,today=today)
 
 @app.route("/user/scores",methods=['GET'])
 def scorepage():

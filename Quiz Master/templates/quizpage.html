@@ -38,6 +38,7 @@
                        data-bs-target="#addQuestionModal">
                         Add Questions
                     </a>
+                    <button class="btn btn-danger deletequiz" data-quizid="{{quiz.qid}}">Delete Quiz</button>
                 </div>
             </div>
         </div>
@@ -174,7 +175,7 @@
 
                     <!-- Submit Button -->
                     <div class="text-center mt-3">
-                        <button class="btn btn-primary" id="addquizbtn">Add Quiz</button>
+                        <button type="submit" class="btn btn-primary" id="addquizbtn">Add Quiz</button>
                     </div>
                 </form>
             </div>
@@ -347,7 +348,8 @@
     });
 
     const addquizbtn=document.getElementById('addquizbtn');
-    addquizbtn.addEventListener('click',()=>{
+    addquizbtn.addEventListener('click',(event)=>{
+        event.preventDefault();
         const quizname=document.getElementById('quizName').value;
         const chapid=document.getElementById('quizChapterId').value;
         const duration=document.getElementById('quizTime').value;
@@ -377,6 +379,26 @@
             console.error("error: ",error);
         });
     });
+    const deletequiz=document.querySelectorAll('.deletequiz');
+        deletequiz.forEach((button)=>{
+            button.addEventListener(('click'),()=>{
+                const qid=button.getAttribute('data-quizid');
+                fetch(`/api/quiz/${qid}`,{method:'DELETE'})
+                .then((response)=>response.json())
+                .then((data)=>{
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch((error)=>{
+                    console.error("error: ",error);
+                });
+            });
+
+
+    });
+
+
+
 </script>
 
 

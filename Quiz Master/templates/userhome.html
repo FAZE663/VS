@@ -40,9 +40,15 @@
                                 <td>{{i.date_of_quiz}}</td>
                                 <td>{{i.num_questions}}</td>
                                 <td>{{i.time_duration}}</td>
-                                <td><a class="btn btn-success" target="_blank" href="/user/instructions/{{i.quiz_id}}">
-                                    Attend Quiz
-                                </a></td>
+                                <td>{% if i.date_of_quiz >= today %}
+                                    <a class="btn btn-success" target="_blank" href="/user/instructions/{{ i.quiz_id }}">
+                                        Attend Quiz
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-secondary" disabled>
+                                        Attend Quiz
+                                    </button>
+                                {% endif %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
