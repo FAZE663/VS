@@ -23,7 +23,8 @@
                                 <td>{{ loop.index }}</td> <!-- Auto-increment question number -->
                                 <td>{{ question.question }}</td>
                                 <td>
-                                    <a href="#">Edit</a> / <a href="#">Delete</a>
+                                    <a href="#" class="addquestion" data-bs-toggle="modal" data-questionid="{{ question.id }}" data-type="edit" data-bs-target="#addQuestionModal">Edit</a> 
+                                    / <a href="#" class="deletechapter" data-questionid="{{question.id}}">Delete</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -33,6 +34,7 @@
                        href="#" 
                        data-bs-toggle="modal" 
                        data-quizid="{{ quiz.qid }}" 
+                       data-type="add"
                        data-bs-target="#addQuestionModal">
                         Add Questions
                     </a>
@@ -73,6 +75,7 @@
 
                         <input type="hidden" id="chapterid" name="chapterid">
                         <input type="hidden" id="quizid" name="quizid">
+                        <input type="hidden" id="questionid" name="questionid">
                         
                         <!-- Correct Answer -->
                         <div class="col-md-6">
@@ -119,7 +122,7 @@
 
                     <!-- Submit Button -->
                     <div class="text-center mt-3">
-                        <button type="submit" class="btn btn-primary" id="submitquestion">Add Question</button>
+                        <button type="submit" class="btn btn-primary" id="submitquestion" data-type="add">Add Question</button>
                     </div>
                 </form>
             </div>
@@ -135,7 +138,7 @@
                 <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="/admin/add-quiz">
+                <form method="POST">
                     <div class="row g-3">
                         <!-- Quiz Name -->
                         <div class="col-md-6">
@@ -148,9 +151,9 @@
                             <label for="quizChapterId" class="form-label">Chapter</label>
                             <select class="form-select" id="quizChapterId" name="quizChapterId" required>
                                 <option value="" disabled selected>Select a Chapter</option>
-                                <option value="1">Chapter 1: Introduction</option>
-                                <option value="2">Chapter 2: Basics</option>
-                                <option value="3">Chapter 3: Advanced Topics</option>
+                                {% for i in chapters %}
+                                <option value="{{i.id}}">Chapter {{i.id}}: {{i.name}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -171,7 +174,7 @@
 
                     <!-- Submit Button -->
                     <div class="text-center mt-3">
-                        <button type="submit" class="btn btn-primary">Add Quiz</button>
+                        <button class="btn btn-primary" id="addquizbtn">Add Quiz</button>
                     </div>
                 </form>
             </div>
@@ -180,25 +183,77 @@
 </div>
 
 
+
+
 <script>
     document.addEventListener('DOMContentLoaded',function(){
+        const addquestionbutton = document.querySelectorAll(".addquestion");
+        addquestionbutton.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const actionType = btn.getAttribute("data-type");
 
-        const addquestionbutton=document.querySelectorAll(".addquestion");
-        addquestionbutton.forEach((btn)=>{
-            btn.addEventListener("click",()=>{
-                const quizid=btn.getAttribute("data-quizid");
-                fetch(`/api/quiz/${quizid}`,{method:'GET'})
-                .then((response)=>response.json())
-                .then((data)=>{
-                    document.getElementById('chaptername').value=data.chaptername;
-                    document.getElementById('chapterid').value=data.chapterid;
-                    document.getElementById('quizid').value=data.quizid;
-                })
-                .catch((error)=>{
-                    console.error(error);
-                });
-            });
+            if (actionType === "add") {
+                const quizid = btn.getAttribute("data-quizid");
+                document.getElementById('addQuestionModalLabel').textContent="Add New Question";
+                const submitbutton=document.getElementById("submitquestion");
+                submitbutton.setAttribute("data-type",'add')
+                fetch(`/api/quiz/${quizid}`, { method: 'GET' })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        fillQuizDetails(data);
+                        clearQuestionFields();
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching quiz details:", error);
+                    });
+
+            } else if (actionType === "edit") {
+                // Handle editing an existing question
+                const questionid = btn.getAttribute("data-questionid");
+                const submitbutton=document.getElementById("submitquestion");
+                document.getElementById('addQuestionModalLabel').textContent="Edit Question";
+                submitbutton.setAttribute("data-type",'edit')
+                fetch(`/api/question/${questionid}`, { method: 'GET' })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        fillQuizDetails(data);
+                        fillQuestionDetails(data);
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching quiz details:", error);
+                    });
+            }
         });
+    });
+
+   
+        function fillQuizDetails(data) {
+            document.getElementById('chaptername').value = data.chaptername;
+            document.getElementById('chapterid').value = data.chapterid;
+            document.getElementById('quizid').value = data.quizid;
+        }
+
+        function fillQuestionDetails(data) {
+            document.getElementById('questionid').value = data.qsid;
+            document.getElementById('questionTitle').value = data.qstitle;
+            document.getElementById('questionDesc').value=data.qstn;
+            document.getElementById('opt1').value = data.opt1;
+            document.getElementById('opt2').value = data.opt2;
+            document.getElementById('opt3').value = data.opt3;
+            document.getElementById('opt4').value = data.opt4;
+            document.getElementById('correctAns').value = data.correctopt;
+        }
+        function clearQuestionFields() {
+            document.getElementById('questionTitle').value = "";
+            document.getElementById('questionid').value="";
+            document.getElementById('questionDesc').value="";
+            document.getElementById('opt1').value = "";
+            document.getElementById('opt2').value = "";
+            document.getElementById('opt3').value = "";
+            document.getElementById('opt4').value = "";
+            document.getElementById('correctAns').value = "";
+        }
+
 
 
         const submitqs=document.getElementById("submitquestion");
@@ -213,32 +268,113 @@
             const chid=document.getElementById("chapterid").value;
             const qid=document.getElementById('quizid').value;
 
-            fetch("/api/question",{
-                method:'POST',
-                headers:{
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    'qstitle':qstitle,
-                    'qstn':qstn,
-                    'opt1':opt1,
-                    'opt2':opt2,
-                    'opt3':opt3,
-                    'opt4':opt4,
-                    'correctopt':correctopt,
-                    'chid':chid,
-                    'qid':qid,
+            actionType=submitqs.getAttribute('data-type');
+            if (actionType=="add"){
+                fetch("/api/question",{
+                    method:'POST',
+                    headers:{
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        'qstitle':qstitle,
+                        'qstn':qstn,
+                        'opt1':opt1,
+                        'opt2':opt2,
+                        'opt3':opt3,
+                        'opt4':opt4,
+                        'correctopt':correctopt,
+                        'chid':chid,
+                        'qid':qid,
+                    })
                 })
-            })
+                .then((response)=>response.json())
+                .then((data)=>{
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch((error)=>{
+                    console.error(error);
+                });
+            }
+            else if (actionType=="edit"){
+                const qsid=document.getElementById("questionid").value;
+                fetch("/api/question",{
+                    method:'PUT',
+                    headers:{
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        'qsid':qsid,
+                        'qstitle':qstitle,
+                        'qstn':qstn,
+                        'opt1':opt1,
+                        'opt2':opt2,
+                        'opt3':opt3,
+                        'opt4':opt4,
+                        'correctopt':correctopt,
+                        'chid':chid,
+                        'qid':qid,
+                    })
+                })
+                .then((response)=>response.json())
+                .then((data)=>{
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch((error)=>{
+                    console.error(error);
+                });
+            }
+
+
+        });
+    });
+
+    const deletebuttons=document.querySelectorAll('.deletechapter');
+    deletebuttons.forEach((deletebutton)=>{
+        deletebutton.addEventListener(('click'),()=>{
+            const qid=deletebutton.getAttribute('data-questionid');
+            fetch(`/api/question/${qid}`,{method:'DELETE'})
             .then((response)=>response.json())
             .then((data)=>{
                 alert(data.message);
                 location.reload();
             })
             .catch((error)=>{
-                console.error(error);
+                console.error("error: ",error);
             });
+        });
+    });
 
+    const addquizbtn=document.getElementById('addquizbtn');
+    addquizbtn.addEventListener('click',()=>{
+        const quizname=document.getElementById('quizName').value;
+        const chapid=document.getElementById('quizChapterId').value;
+        const duration=document.getElementById('quizTime').value;
+        const qdate=document.getElementById('quizDate').value;
+        const det=document.getElementById('quizDesc').value;
+
+        fetch("/api/quiz",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+            },
+            body:JSON.stringify({
+                'chid':chapid,
+                "name":quizname,
+                "duration":duration,
+                "date":qdate,
+                "desc":det,
+
+            })
+        })
+        .then((response)=>response.json())
+        .then((data)=>{
+            alert(data.message);
+            location.reload();
+        })
+        .catch((error)=>{
+            console.error("error: ",error);
         });
     });
 </script>

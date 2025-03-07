@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
 from model import *
+from datetime import datetime
 
 class chapterResources(Resource):
     def post(self):
@@ -94,6 +95,29 @@ class quizResources(Resource):
                     'message':'Some Error Occured:{mesg}',
                     'status':"error"
                 })
+    def post(self):
+        try:
+            data=request.get_json()
+
+            chid=data['chid']
+            name=data["name"]
+            duration=data['duration']
+            date=datetime.strptime(data["date"],"%Y-%m-%d")
+            desc=data["desc"]
+
+            newquiz=Quiz(chapter_id=chid,name=name,date_of_quiz=date,time_duration=duration,description=desc)
+
+            db.session.add(newquiz)
+            db.session.commit()
+            return jsonify({"message":"Quiz added succesfully","status":"success"})
+        except Exception as e:
+            mesg=str(e)
+            print('error'," ",mesg)
+            return jsonify({
+                    'message':'Some Error Occured:{mesg}',
+                    'status':"error"
+            })
+
 
 class questionResources(Resource):
     def post(self):
@@ -118,5 +142,82 @@ class questionResources(Resource):
             db.session.rollback()
             print(str(e))
             return jsonify({"message":"Question not added succesfully","status":"error"})
+        finally:
+            db.session.close()
+    def get(self,id):
+        try:
+            qs=Question.query.get(id)
+            quiz=Quiz.query.filter_by(id=qs.quiz_id).first()
+            quizname=quiz.name
+            chapter=Chapter.query.filter_by(id=qs.chapter_id).first()
+
+            chaptername=chapter.name
+
+            if qs:
+                return jsonify({
+                    'message':'Fetched the question details succesfully',
+                    'qsid':id,
+                    'quizid':qs.quiz_id,
+                    'quizname':quizname,
+                    'chapterid':qs.chapter_id,
+                    'chaptername':chaptername,
+                    'qstitle':qs.question_title,
+                    'qstn':qs.question_statement,
+                    'opt1':qs.option1,
+                    'opt2':qs.option2,
+                    'opt3':qs.option3,
+                    'opt4':qs.option4,
+                    'correctopt':qs.correct_option,
+                    'status':"Success"
+                })
+        except Exception as e:
+            mesg=str(e)
+            print('error'," ",mesg)
+            return jsonify({
+                    'message':'Some Error Occured:{mesg}',
+                    'status':"error"
+                })
+    def delete(self,id):
+        try:
+            qstn=Question.query.get(id)
+            db.session.delete(qstn)
+            db.session.commit()
+            return jsonify({"message":"Question deleted","status":"success"})
+        except Exception as e:
+            print(f'error: {str(e)}')
+            db.session.rollback()
+            return jsonify({'message':'Some error occured','status':"error"}) 
+    def put(self):
+        try:
+            data=request.get_json()
+
+            qsid=data.get('qsid')
+            print(qsid)
+
+            qstitle=data["qstitle"]
+            qstn=data['qstn']
+            opt1=data['opt1']
+            opt2=data['opt2']
+            opt3=data['opt3']
+            opt4=data['opt4']
+            correctopt=data['correctopt']
+            
+
+            question=Question.query.filter_by(id=qsid).first()
+
+            question.question_title=qstitle
+            question.question_statement=qstn
+            question.option1=opt1
+            question.option2=opt2
+            question.option3=opt3
+            question.option4=opt4
+            question.correct_option=correctopt  
+
+            db.session.commit()
+            return jsonify({"message":"Question Edited succesfully","status":"success"})
+        except Exception as e:
+            db.session.rollback()
+            print(str(e))
+            return jsonify({"message":"Question not edited succesfully","status":"error"})
         finally:
             db.session.close()

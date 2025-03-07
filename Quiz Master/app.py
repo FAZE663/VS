@@ -187,9 +187,14 @@ def quizpage():
                 "id": row.id,
                 "question": row.question
             })
+    
+    chapters=Chapter.query.with_entities(
+        Chapter.name.label('name'),
+        Chapter.id.label("id"),
+        Chapter.subject_id.label('subid')
+    ).all()
 
-
-    return render_template("quizpage.html",usertype='admin',username='admin',data=quizzes.values())
+    return render_template("quizpage.html",usertype='admin',username='admin',data=quizzes.values(),chapters=chapters)
 
 
 @app.route("/",methods=['GET','POST'])
@@ -311,8 +316,8 @@ with app.app_context():
     db.session.commit()
 
 api.add_resource(chapterResources, '/api/chapter','/api/chapter/<int:id>')
-api.add_resource(quizResources, '/api/quiz/<int:id>')
-api.add_resource(questionResources, '/api/question')
+api.add_resource(quizResources, '/api/quiz/<int:id>','/api/quiz')
+api.add_resource(questionResources, '/api/question','/api/question/<int:id>')
 
 if __name__=="__main__":
     app.debug=True
