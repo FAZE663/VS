@@ -1,0 +1,335 @@
+openapi: 3.0.0
+info:
+  title: Chapter and Quiz Management API
+  description: API for managing chapters, quizzes, and questions
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local server
+paths:
+  /api/chapter:
+    post:
+      summary: Add a new chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subid:
+                  type: integer
+                chapter_name:
+                  type: string
+                chdesc:
+                  type: string
+      responses:
+        '200':
+          description: Chapter added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+    put:
+      summary: Edit an existing chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chid:
+                  type: integer
+                chname:
+                  type: string
+                chdes:
+                  type: string
+      responses:
+        '200':
+          description: Chapter edited successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+  /api/chapter/{id}:
+    get:
+      summary: Get a chapter by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chapter fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+    delete:
+      summary: Delete a chapter by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chapter deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+  /api/quiz/{id}:
+    get:
+      summary: Get a quiz by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quiz fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+                  quizid:
+                    type: integer
+                  quizname:
+                    type: string
+                  chapterid:
+                    type: integer
+                  chaptername:
+                    type: string
+    delete:
+      summary: Delete a quiz by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quiz deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+  /api/quiz:
+    post:
+      summary: Add a new quiz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chid:
+                  type: integer
+                name:
+                  type: string
+                duration:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                desc:
+                  type: string
+      responses:
+        '200':
+          description: Quiz added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+  /api/question:
+    post:
+      summary: Add a new question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                qstitle:
+                  type: string
+                qstn:
+                  type: string
+                opt1:
+                  type: string
+                opt2:
+                  type: string
+                opt3:
+                  type: string
+                opt4:
+                  type: string
+                correctopt:
+                  type: string
+                chid:
+                  type: integer
+                qid:
+                  type: integer
+      responses:
+        '200':
+          description: Question added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+    put:
+      summary: Edit an existing question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                qsid:
+                  type: integer
+                qstitle:
+                  type: string
+                qstn:
+                  type: string
+                opt1:
+                  type: string
+                opt2:
+                  type: string
+                opt3:
+                  type: string
+                opt4:
+                  type: string
+                correctopt:
+                  type: string
+      responses:
+        '200':
+          description: Question edited successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+  /api/question/{id}:
+    get:
+      summary: Get a question by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Question fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+                  qsid:
+                    type: integer
+                  quizid:
+                    type: integer
+                  quizname:
+                    type: string
+                  chapterid:
+                    type: integer
+                  chaptername:
+                    type: string
+                  qstitle:
+                    type: string
+                  qstn:
+                    type: string
+                  opt1:
+                    type: string
+                  opt2:
+                    type: string
+                  opt3:
+                    type: string
+                  opt4:
+                    type: string
+                  correctopt:
+                    type: string
+    delete:
+      summary: Delete a question by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Question deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string

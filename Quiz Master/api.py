@@ -14,14 +14,14 @@ class chapterResources(Resource):
             chdesc=data['chdesc']
 
             newchap=Chapter(name=chaptername,subject_id=subid,description=chdesc)
-            print("succesfully added it")
+            
             db.session.add(newchap)
             db.session.commit()
             return jsonify({"message":"Chapter added succesfully","status":"success"})
 
         except Exception as e:
             db.session.rollback()
-            print(str(e))
+            
             return jsonify({"message":"Chapter not added succesfully","status":"error"})
         finally:
             db.session.close()
@@ -31,7 +31,7 @@ class chapterResources(Resource):
             chapterid=data.get('chid')
             chaptername=data["chname"]
             chdesc=data["chdes"]
-            print(f'{chapterid},{chaptername},{chdesc}')
+            
             chapter=Chapter.query.filter_by(id=chapterid).first()
             if not chapter:
                 return jsonify({'message':'Chapter not found','status':"error"})
@@ -42,7 +42,7 @@ class chapterResources(Resource):
             db.session.commit()
             return jsonify({"message":"Chapter aedited succesfully","status":"success"})
         except Exception as e:
-            print(f'error: {str(e)}')
+            
             db.session.rollback()
             return jsonify({'message':'Some error occured','status':"error"})
 
@@ -68,7 +68,7 @@ class chapterResources(Resource):
             db.session.commit()
             return jsonify({"message":"Chapter deleted","status":"success"})
         except Exception as e:
-            print(f'error: {str(e)}')
+            
             db.session.rollback()
             return jsonify({'message':'Some error occured','status':"error"}) 
         
@@ -90,7 +90,7 @@ class quizResources(Resource):
                 })
         except Exception as e:
             mesg=str(e)
-            print('error'," ",mesg)
+            
             return jsonify({
                     'message':'Some Error Occured:{mesg}',
                     'status':"error"
@@ -114,7 +114,7 @@ class quizResources(Resource):
             return jsonify({"message":"Quiz added succesfully","status":"success"})
         except Exception as e:
             mesg=str(e)
-            print('error'," ",mesg)
+            
             return jsonify({
                     'message':str('Some Error Occured: ',mesg),
                     'status':"error"
@@ -126,7 +126,7 @@ class quizResources(Resource):
             db.session.commit()
             return jsonify({"message":"Question deleted","status":"success"})
         except Exception as e:
-            print(f'error: {str(e)}')
+            
             db.session.rollback()
             return jsonify({'message':'Some error occured','status':"error"}) 
 
@@ -152,7 +152,7 @@ class questionResources(Resource):
             return jsonify({"message":"Question added succesfully","status":"success"})
         except Exception as e:
             db.session.rollback()
-            print(str(e))
+        
             return jsonify({"message":"Question not added succesfully","status":"error"})
         finally:
             db.session.close()
@@ -184,7 +184,7 @@ class questionResources(Resource):
                 })
         except Exception as e:
             mesg=str(e)
-            print('error'," ",mesg)
+            
             return jsonify({
                     'message':'Some Error Occured:{mesg}',
                     'status':"error"
@@ -196,7 +196,7 @@ class questionResources(Resource):
             db.session.commit()
             return jsonify({"message":"Question deleted","status":"success"})
         except Exception as e:
-            print(f'error: {str(e)}')
+            
             db.session.rollback()
             return jsonify({'message':'Some error occured','status':"error"}) 
     def put(self):
@@ -204,7 +204,7 @@ class questionResources(Resource):
             data=request.get_json()
 
             qsid=data.get('qsid')
-            print(qsid)
+            
 
             qstitle=data["qstitle"]
             qstn=data['qstn']
@@ -229,7 +229,7 @@ class questionResources(Resource):
             return jsonify({"message":"Question Edited succesfully","status":"success"})
         except Exception as e:
             db.session.rollback()
-            print(str(e))
+           
             return jsonify({"message":"Question not edited succesfully","status":"error"})
         finally:
             db.session.close()

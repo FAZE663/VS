@@ -6,6 +6,7 @@ import os
 from model import *
 from api import *
 from sqlalchemy import desc
+from flask_cors import CORS
 
 
 app=Flask(__name__)
@@ -15,6 +16,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)  
 app.secret_key='QuizMaster'
 api=Api(app)
+CORS(app)
 
 
 
