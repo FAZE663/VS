@@ -2,13 +2,19 @@
 
 {% block title %}Admin Home{% endblock %}
 {% block content %}
-<div class="container mt-4"> <!-- Added 'mt-4' for margin on top -->
+<div class="container mt-4"> 
     <div class="row">
         {% for sub in subdet %}
         <div class="col-md-6">
-            <div class="card shadow-sm mb-4 p-3"> <!-- 'mb-4' for spacing between rows, 'p-3' for padding -->
+            <div class="card shadow-sm mb-4 p-3"> 
                 <div class="card-body">
-                    <h5 class="card-title">{{sub.id}}. {{sub.name}}</h5>
+                    <div class="d-flex justify-content-between p-3" >
+                        <h5 class="card-title">{{sub.id}}. {{sub.name}}</h5>
+                        <div class="d-flex justify-content-center">
+                            <a class="btn btn-danger deletesubject ms-1" data-subid="{{sub.id}}">Delete</a> 
+                            <a class="btn btn-success editsubject ms-1" data-bs-toggle="modal" data-bs-target="#editSubjectModal" data-subid="{{sub.id}}">Edit</a>
+                        </div>
+                    </div>
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -23,7 +29,7 @@
                                 <td>{{chap.title}}</td>
                                 <td>{{chap.question_count}}</td>
                                 <td><a class="btn btn-success editchapter" data-bs-toggle="modal" data-bs-target="#editChapterModal" data-chapterid="{{chap.id}}">Edit</a> 
-                                    <a class="btn btn-danger deletechapter" data-chapid="{{chap.id}}">Delete</a></td>
+                                    <a class="btn btn-danger deletechapter" data-chapid="{{chap.id}}" >Delete</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -85,7 +91,7 @@
                 <!-- Add Subject Form -->
                 <form method="POST">
 
-                    <input type="hidden" id="subjectid" name="subjectid">
+                    
                     <div class="mb-3">
                         <label for="subjectName" class="form-label">Subject Name</label>
                         <input type="text" class="form-control" id="subjectName" name="subject_name" required>
@@ -95,7 +101,7 @@
                         <textarea class="form-control" id="subjectDescription" name="subject_description" rows="3"></textarea>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Add Subject</button>
+                        <button type="submit" class="btn btn-primary" id="AddSubject">Add Subject</button>
                     </div>
                 </form>
             </div>
@@ -127,6 +133,35 @@
                     </div>
                     <div class="text-center">
                         <button class="btn btn-primary" id="confirmchanges">Confirm Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSubjectModalLabel">Add New Subject</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <form method="POST">
+
+                    <input type="hidden" class="form-control" id="subid" name="subjectid">
+                    <div class="mb-3">
+                        <label for="subjectName" class="form-label">Subject Name</label>
+                        <input type="text" class="form-control" id="subjectNameedit" name="subject_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subjectDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="subjectDescriptionedit" name="subject_description" rows="3"></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary" id="editSubject">Edit Subject</button>
                     </div>
                 </form>
             </div>
@@ -237,6 +272,91 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error("error: ",error);
             });
         });
+    });
+
+    const addsubject=document.getElementById("AddSubject");
+    addsubject.addEventListener(('click'),()=>{
+        const subname=document.getElementById('subjectName').value;
+        const subdesc=document.getElementById('subjectDescription').value;
+        fetch("/api/subject",{
+            method:'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                "subname":subname,
+                "subdesc":subdesc,
+            })
+
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            alert(data.message);
+            location.reload();
+        })
+        .catch((error) => {
+            console.error('Error: ', error);
+        });
+    });
+
+    const deletesubjects=document.querySelectorAll('.deletesubject');
+    deletesubjects.forEach((deletebutton)=>{
+        deletebutton.addEventListener(('click'),()=>{
+            const subid=deletebutton.getAttribute("data-subid");
+            fetch( `/api/subject/${subid}`,{method:"DELETE"})
+            .then((response)=>response.json())
+            .then((data)=>{
+                alert(data.message);
+                location.reload();
+
+            })
+            .catch((error) => {
+            console.error('Error: ', error);
+            });
+        });
+    });
+
+    const subeditbuttons=document.querySelectorAll(".editsubject");
+    subeditbuttons.forEach((subeditbutton)=>{
+        subeditbutton.addEventListener(('click'),()=>{
+            const subid=subeditbutton.getAttribute('data-subid');
+            fetch(`/api/subject/${subid}`,{method:'GET'})
+            .then((response)=>response.json())
+            .then((data)=>{
+                document.getElementById("subid").value=subid;
+                document.getElementById("subjectNameedit").value=data.subname;
+                document.getElementById("subjectDescriptionedit").value=data.subdesc;
+            })
+            .catch((error) => {
+            console.error('Error: ', error);
+            });
+        });
+    });
+
+    const editsub=document.getElementById('editSubject');
+    editsub.addEventListener(('click'),()=>{
+        const subname=document.getElementById('subjectNameedit').value;
+        const subid=document.getElementById('subid').value;
+        const subdesc=document.getElementById("subjectDescriptionedit").value;
+        fetch("/api/subject",{
+            method:"PUT",
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                'subid':subid,
+                'subname':subname,
+                'subdesc':subdesc,
+            })
+        })
+        .then((response)=> response.json())
+        .then((data)=>{
+            alert(data.message);
+            location.reload();
+
+        })
+        .catch((error) => {
+            console.error('Error: ', error);
+        })
+
     });
 
 });

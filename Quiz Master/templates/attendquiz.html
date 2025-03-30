@@ -60,13 +60,18 @@
 
     <script>
         // Timer countdown
-        let timer = {{quizdet.time_duration}}; 
+        let timerstring = "{{quizdet.time_duration}}"; 
+        
+        let timer=parseInt(timerstring);
+        
         const timerDisplay = document.getElementById('timer');
+
+        timer=timer*60;
 
         function updateTimer() {
             const minutes = Math.floor(timer / 60);
             const seconds = timer % 60;
-            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            timerDisplay.textContent = `${minutes}:${String(seconds).padStart(2,'0')}`;
 
             if (timer <= 0) {
                 clearInterval(countdown);

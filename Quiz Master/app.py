@@ -9,6 +9,7 @@ from sqlalchemy import desc
 from flask_cors import CORS
 
 
+
 app=Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database', 'db.sqlite3')
@@ -322,6 +323,7 @@ with app.app_context():
 api.add_resource(chapterResources, '/api/chapter','/api/chapter/<int:id>')
 api.add_resource(quizResources, '/api/quiz/<int:id>','/api/quiz')
 api.add_resource(questionResources, '/api/question','/api/question/<int:id>')
+api.add_resource(subjectResources, '/api/subject','/api/subject/<int:id>')
 
 if __name__=="__main__":
     app.debug=True

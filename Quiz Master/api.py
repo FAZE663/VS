@@ -4,6 +4,15 @@ from flask_restful import Api, Resource
 from model import *
 from datetime import datetime
 
+def converttime(dur):
+    dur=int(dur.strip(" mins"))
+    
+    hours=dur//60
+    mins=dur%60
+
+    return f"{hours:02}:{mins:02}"
+
+
 class chapterResources(Resource):
     def post(self):
         try:
@@ -73,6 +82,37 @@ class chapterResources(Resource):
             return jsonify({'message':'Some error occured','status':"error"}) 
         
 class quizResources(Resource):
+
+    def put(self):
+        try:
+            data=request.get_json()
+
+            qid=data['qid']
+            chid=data['chid']
+            name=data["name"]
+            time=datetime.strptime(data['duration'],'%H:%M')
+            date=datetime.strptime(data["date"],"%Y-%m-%d")
+            desc=data["desc"]
+
+            duration=time.hour*60+time.minute
+
+            quiz=Quiz.query.get(qid)
+            
+            if quiz:
+                quiz.chapter_id=chid
+                quiz.name=name
+                quiz.date_of_quiz=date
+                quiz.date_duration=duration
+                quiz.description=desc
+
+                db.session.commit()
+                return jsonify({'message':"Quiz edited succesfully","status":"success"})
+            return jsonify({'message':'Some error occured','status':"error"}) 
+        except Exception as e:
+            print (str(e))
+            db.session.rollback()
+            return jsonify({'message':'Some error occured','status':"error"}) 
+
     def get(self,id):
         try:
             quiz=Quiz.query.get(id)
@@ -80,17 +120,26 @@ class quizResources(Resource):
 
             chaptername=chapter.name
             if quiz:
+                time=quiz.time_duration
+                formattedtime=converttime(time)
+                date=quiz.date_of_quiz
+                date=date.strftime('%Y-%m-%d')
+
+
                 return jsonify({
                     'message':'Fetched the quiz details succesfully',
                     'quizid':quiz.id,
                     'quizname':quiz.name,
                     'chapterid':quiz.chapter_id,
                     'chaptername':chaptername,
+                    'desc':quiz.description,
+                    'quiztime':formattedtime,
+                    'quizdate':date,
                     'status':"Success"
                 })
         except Exception as e:
             mesg=str(e)
-            
+            print(e)
             return jsonify({
                     'message':'Some Error Occured:{mesg}',
                     'status':"error"
@@ -114,7 +163,7 @@ class quizResources(Resource):
             return jsonify({"message":"Quiz added succesfully","status":"success"})
         except Exception as e:
             mesg=str(e)
-            
+            print (mesg)
             return jsonify({
                     'message':str('Some Error Occured: ',mesg),
                     'status':"error"
@@ -233,3 +282,74 @@ class questionResources(Resource):
             return jsonify({"message":"Question not edited succesfully","status":"error"})
         finally:
             db.session.close()
+
+class subjectResources(Resource):
+    def post(self):
+        try:
+            data=request.get_json()
+
+            subname=data['subname']
+            subdesc=data['subdesc']
+
+
+            sub=Subject(name=subname,description=subdesc)
+            db.session.add(sub)
+            db.session.commit()
+            return jsonify({"message":"Subject added succesfully","status":"success"})
+        except Exception as e:
+            db.session.rollback()
+            print(f'{str(e)}')
+            return jsonify({"message":"Subject not added succesfully","status":"error"})
+    def delete(self,id):
+        try:
+            subjct=Subject.query.get(id)
+            db.session.delete(subjct)
+            db.session.commit()
+            return jsonify({"message":"Subject deleted","status":"success"})
+        except Exception as e:
+            
+            db.session.rollback()
+            return jsonify({'message':'Some error occured','status':"error"})
+    def get(self,id):
+        try:
+            subject=Subject.query.get(id)
+            if subject:
+                return jsonify({
+                    'message':"Fetched the subject details succesfully",
+                    'subid':id,
+                    'subname':subject.name,
+                    'subdesc':subject.description,
+                    'status':"success",
+                })
+        except Exception as e:
+            mesg=str(e)
+            return jsonify({
+
+                'message':'Some error occured: {mesg}',
+                'status':'error'
+            })
+    def put(self):
+        try:
+            data=request.get_json()
+
+            subname=data['subname']
+            subdesc=data['subdesc']
+            subid=data['subid']
+
+            print(data)
+
+            subject=Subject.query.get(subid)
+
+            subject.name=subname
+            subject.description=subdesc
+            db.session.commit()
+            return jsonify({"message":"Subject Edited succesfully","status":"success"})
+        except Exception as e:
+            db.session.rollback()
+            print(str(e))
+            return jsonify({"message":"Subject not edited succesfully","status":"error"})
+        finally:
+            db.session.close()
+
+
+

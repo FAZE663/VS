@@ -39,6 +39,7 @@
                         Add Questions
                     </a>
                     <button class="btn btn-danger deletequiz" data-quizid="{{quiz.qid}}">Delete Quiz</button>
+                    <button class="btn btn-primary editquiz" data-quizid="{{quiz.qid}}" data-bs-toggle="modal" data-bs-target="#editquizdetailsmodal">Edit Quiz</button>
                 </div>
             </div>
         </div>
@@ -80,7 +81,7 @@
                         <div class="col-md-6">
                             <label for="correctAns" class="form-label">Correct Answer</label>
                             <select class="form-select" name="correctAns" id="correctAns" required>
-                                <option value="" disabled selected>Select an Option</option>
+                                <option  value= "" disabled selected>Select an Option</option>
                                 <option value="1">A</option>
                                 <option value="2">B</option>
                                 <option value="3">C</option>
@@ -181,6 +182,59 @@
     </div>
 </div>
 
+<div class="modal fade" id="editquizdetailsmodal" tabindex="-1" aria-labelledby="editquizdetailsmodal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditQuizModalLabel">Edit Quiz</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <div class="row g-3">
+                        <input type="hidden" class="form-control" id="qid" name="qid">
+                        <!-- Quiz Name -->
+                        <div class="col-md-6">
+                            <label for="quizName" class="form-label">Quiz Name</label>
+                            <input type="text" class="form-control" id="quizname" name="quizName" required>
+                        </div>
+
+                        <!-- Chapter ID -->
+                        <div class="col-md-6">
+                            <label for="quizChapterId" class="form-label">Chapter</label>
+                            <select class="form-select" id="quizchapterId" name="quizChapterId" required>
+                                <option value="" disabled selected>Select a Chapter</option>
+                                {% for i in chapters %}
+                                <option value="{{i.id}}">Chapter {{i.id}}: {{i.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Description -->
+                    <div class="mb-3">
+                        <label for="quizdesc" class="form-label">Quiz Description</label>
+                        <textarea class="form-control" rows="3" name="quizDesc" id="quizdesc" placeholder="Enter quiz description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quiztime" class="form-label">Quiz Duration</label>
+                        <input type="time" class="form-control" id="quiztime" name="quizTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quizdate" class="form-label">scheduled date</label>
+                        <input type="date" class="form-control" id="quizdate" name="quizDate" required>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary" id="editquizbtn">Edit Quiz</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -188,10 +242,12 @@
     document.addEventListener('DOMContentLoaded',function(){
         const addquestionbutton = document.querySelectorAll(".addquestion");
         addquestionbutton.forEach((btn) => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", function(event){
+            
             const actionType = btn.getAttribute("data-type");
 
             if (actionType === "add") {
+
                 const quizid = btn.getAttribute("data-quizid");
                 document.getElementById('addQuestionModalLabel').textContent="Add New Question";
                 const submitbutton=document.getElementById("submitquestion");
@@ -221,9 +277,9 @@
                     .catch((error) => {
                         console.error("Error fetching quiz details:", error);
                     });
-            }
+                }
+            });
         });
-    });
 
    
         function fillQuizDetails(data) {
@@ -327,61 +383,13 @@
 
 
         });
-    });
+    
 
-    const deletebuttons=document.querySelectorAll('.deletechapter');
-    deletebuttons.forEach((deletebutton)=>{
-        deletebutton.addEventListener(('click'),()=>{
-            const qid=deletebutton.getAttribute('data-questionid');
-            fetch(`/api/question/${qid}`,{method:'DELETE'})
-            .then((response)=>response.json())
-            .then((data)=>{
-                alert(data.message);
-                location.reload();
-            })
-            .catch((error)=>{
-                console.error("error: ",error);
-            });
-        });
-    });
-
-    const addquizbtn=document.getElementById('addquizbtn');
-    addquizbtn.addEventListener('click',(event)=>{
-        event.preventDefault();
-        const quizname=document.getElementById('quizName').value;
-        const chapid=document.getElementById('quizChapterId').value;
-        const duration=document.getElementById('quizTime').value;
-        const qdate=document.getElementById('quizDate').value;
-        const det=document.getElementById('quizDesc').value;
-
-        fetch("/api/quiz",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-            },
-            body:JSON.stringify({
-                'chid':chapid,
-                "name":quizname,
-                "duration":duration,
-                "date":qdate,
-                "desc":det,
-
-            })
-        })
-        .then((response)=>response.json())
-        .then((data)=>{
-            alert(data.message);
-            location.reload();
-        })
-        .catch((error)=>{
-            console.error("error: ",error);
-        });
-    });
-    const deletequiz=document.querySelectorAll('.deletequiz');
-        deletequiz.forEach((button)=>{
-            button.addEventListener(('click'),()=>{
-                const qid=button.getAttribute('data-quizid');
-                fetch(`/api/quiz/${qid}`,{method:'DELETE'})
+        const deletebuttons=document.querySelectorAll('.deletechapter');
+        deletebuttons.forEach((deletebutton)=>{
+            deletebutton.addEventListener(('click'),()=>{
+                const qid=deletebutton.getAttribute('data-questionid');
+                fetch(`/api/question/${qid}`,{method:'DELETE'})
                 .then((response)=>response.json())
                 .then((data)=>{
                     alert(data.message);
@@ -391,9 +399,116 @@
                     console.error("error: ",error);
                 });
             });
+        });
+
+        const addquizbtn=document.getElementById('addquizbtn');
+        addquizbtn.addEventListener('click',(event)=>{
+            event.preventDefault();
+            const quizname=document.getElementById('quizName').value;
+            const chapid=document.getElementById('quizChapterId').value;
+            const duration=document.getElementById('quizTime').value;
+            const qdate=document.getElementById('quizDate').value;
+            const det=document.getElementById('quizDesc').value;
+
+            fetch("/api/quiz",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                },
+                body:JSON.stringify({
+                    'chid':chapid,
+                    "name":quizname,
+                    "duration":duration,
+                    "date":qdate,
+                    "desc":det,
+
+                })
+            })
+            .then((response)=>response.json())
+            .then((data)=>{
+                alert(data.message);
+                location.reload();
+            })
+            .catch((error)=>{
+                console.error("error: ",error);
+            });
+        });
+        const deletequiz=document.querySelectorAll('.deletequiz');
+            deletequiz.forEach((button)=>{
+                button.addEventListener(('click'),()=>{
+                    const qid=button.getAttribute('data-quizid');
+                    fetch(`/api/quiz/${qid}`,{method:'DELETE'})
+                    .then((response)=>response.json())
+                    .then((data)=>{
+                        alert(data.message);
+                        location.reload();
+                    })
+                    .catch((error)=>{
+                        console.error("error: ",error);
+                    });
+                });
 
 
+        });
+
+        const editquizbuttons=document.querySelectorAll(".editquiz")
+        editquizbuttons.forEach((editquizbutton)=>{
+            editquizbutton.addEventListener(('click'),()=>{
+                const qid=editquizbutton.getAttribute('data-quizid');
+                fetch(`/api/quiz/${qid}`,{
+                    method:'GET',
+                })
+                .then((response)=> response.json())
+                .then((data)=>{
+                    console.log(data);
+                    document.getElementById("qid").value=qid,
+                    document.getElementById("quizname").value=data.quizname;
+                    document.getElementById("quizchapterId").value=data.chapterid;
+                    document.getElementById('quiztime').value=data.quiztime;
+                    document.getElementById('quizdate').value=data.quizdate;
+                    document.getElementById('quizdesc').value=data.desc;
+                })
+                .catch((error)=>{
+                        console.error("error: ",error);
+                    });
+
+            });
+        });
+
+        const confirmedit=document.getElementById('editquizbtn');
+        confirmedit.addEventListener(('click'),()=>{
+            const qid=document.getElementById("qid").value;
+            const name=document.getElementById("quizname").value;
+            const chid= document.getElementById("quizchapterId").value;
+            const duration=document.getElementById('quiztime').value;
+            const date=document.getElementById('quizdate').value;
+            const desc=document.getElementById('quizdesc').value;
+
+            fetch("/api/quiz",{
+                method:"PUT",
+                headers:{
+                    "Content-Type":"application/json",
+                },
+                body:JSON.stringify({
+                    "qid":qid,
+                    "chid":chid,
+                    "name":name,
+                    "duration":duration,
+                    "date":date,
+                    "desc":desc,
+                })
+            })
+            .then((response)=>response.json())
+            .then((data)=>{
+                alert(data.message);
+                location.reload();
+            })
+            .catch((error)=>{
+                console.error(error)
+            })
+        })
     });
+
 
 
 
